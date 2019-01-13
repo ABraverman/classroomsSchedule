@@ -8,7 +8,7 @@ def main():
 
         cursor = _conn.cursor()
         counter = 0
-        while True:
+        while os.path.isfile("schedule.db"):
             cursor.execute("""
             SELECT classrooms.*, courses.course_name, courses.course_length FROM classrooms LEFT JOIN courses ON classrooms.current_course_id = courses.id
             """)
@@ -55,16 +55,21 @@ def main():
                     course = cursor.fetchone()
                     if course != None:
                         cursor.execute("""
-                        UPDATE classrooms
-                        SET current_course_id = ?, current_course_time_left = ?
-                        WHERE id = ?
-                        """, [course[0], course[5], i[0]])
-                        cursor.execute("""
-                        UPDATE students
-                        SET count = count - ?
-                        WHERE grade = ?
-                        """, [course[3], course[2]])
-                        print("(" + str(counter) + ") " + i[1] + ": " + course[1] + " is schedule to start")
+                        SELECT * FROM students WHERE grade = ?
+                        """, [course[2]])
+                        student = cursor.fetchone()
+                        if student[1] >= course[3]:
+                            cursor.execute("""
+                            UPDATE classrooms
+                            SET current_course_id = ?, current_course_time_left = ?
+                            WHERE id = ?
+                            """, [course[0], course[5], i[0]])
+                            cursor.execute("""
+                            UPDATE students
+                            SET count = count - ?
+                            WHERE grade = ?
+                            """, [course[3], course[2]])
+                            print("(" + str(counter) + ") " + i[1] + ": " + course[1] + " is schedule to start")
                     else:
                         cursor.execute("""
                         UPDATE classrooms
@@ -77,7 +82,8 @@ def main():
             """)
             print_db(_conn.cursor())
             if len(cursor.fetchall()) <= 0:
-                # _conn.commit()
+                _conn.commit()
+                _conn.close()
                 break
 
 

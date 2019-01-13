@@ -78,7 +78,8 @@ def main(args):
     if create_tables():
         with open(args[1], "r") as config:
             for line in config.read().splitlines():
-                arg = line.split(", ")
+                arg = line.split(",")
+                arg = list(map(lambda x: x.strip('\n \r\t'), arg))
                 if arg[0] == "C":
                     insert_course(arg[1:])
                 elif arg[0] == "S":
