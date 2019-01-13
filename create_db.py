@@ -75,7 +75,7 @@ def print_db(cur):
 
 
 def main(args):
-    if create_tables() == True:
+    if create_tables():
         with open(args[1], "r") as config:
             for line in config.read().splitlines():
                 arg = line.split(", ")

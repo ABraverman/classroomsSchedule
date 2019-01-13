@@ -21,16 +21,21 @@ def main():
                     course = cursor.fetchone()
                     if course != None:
                         cursor.execute("""
-                        UPDATE classrooms
-                        SET current_course_id = ?, current_course_time_left = ?
-                        WHERE id = ?
-                        """, [course[0], course[5], i[0]])
-                        cursor.execute("""
-                        UPDATE students
-                        SET count = count - ?
-                        WHERE grade = ?
-                        """, [course[3], course[2]])
-                        print("(" + str(counter) + ") " + i[1] + ": " + course[1] + " is schedule to start")
+                        SELECT * FROM students WHERE grade = ?
+                        """, [course[2]])
+                        student = cursor.fetchone()
+                        if student[1] >= course[3]:
+                            cursor.execute("""
+                            UPDATE classrooms
+                            SET current_course_id = ?, current_course_time_left = ?
+                            WHERE id = ?
+                            """, [course[0], course[5], i[0]])
+                            cursor.execute("""
+                            UPDATE students
+                            SET count = count - ?
+                            WHERE grade = ?
+                            """, [course[3], course[2]])
+                            print("(" + str(counter) + ") " + i[1] + ": " + course[1] + " is schedule to start")
                 elif i[3] - 1 > 0:
                     print("(" + str(counter) + ") " + i[1] + ": occupied by " + i[4])
                     cursor.execute("""
